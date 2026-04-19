@@ -1,0 +1,69 @@
+Arduino LCD Calculator
+Arduino
+C++
+Hardware
+LCD Keypad Shield
+16×2 LCD
+A hardware-based arithmetic calculator built for Arduino using the LCD Keypad Shield. Numbers and operators are selected via the shield's onboard buttons, with all input and results displayed live on the integrated 16×2 LCD — no Serial Monitor required.
+
+Features
+
+✓
+Addition, subtraction, multiplication, division
+✓
+Full output on 16×2 LCD display
+✓
+Button-driven input (Up/Down/Left/Right/Select)
+✓
+Division-by-zero error handling
+✓
+Chained calculations
+✓
+No external wiring — shield plug-and-play
+Hardware requirements
+
+→ Arduino Uno (or compatible board)
+→ LCD Keypad Shield (DFRobot-compatible, 16×2 LCD + 5 buttons)
+→ Library: LiquidCrystal.h (built into Arduino IDE)
+Shield pin mapping
+
+LCD pins
+
+RS → D8
+EN → D9
+D4–D7 → D4–D7
+Button input
+
+Analog A0
+(resistor ladder)
+Button controls
+
+UP
+Increment digit / cycle operator
+DOWN
+Decrement digit / cycle operator
+RIGHT
+Confirm entry / advance to next step
+SELECT
+Calculate result (=)
+LEFT
+Clear / reset
+Getting started
+
+1
+Plug the LCD Keypad Shield onto your Arduino Uno
+
+2
+Open calculator.ino in the Arduino IDE
+
+3
+Select your board and COM port, then upload
+
+4
+Use the onboard buttons to enter numbers, select an operator, and press SELECT to calculate
+
+LCD display layout
+
+42 + 58        
+= 100         
+Row 1: current expression  ·  Row 2: result
