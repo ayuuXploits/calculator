@@ -1,9 +1,3 @@
-              .__               .__          __                
-  ____ _____  |  |   ____  __ __|  | _____ _/  |_  ___________ 
-_/ ___\\__  \ |  | _/ ___\|  |  \  | \__  \\   __\/  _ \_  __ \
-\  \___ / __ \|  |_\  \___|  |  /  |__/ __ \|  | (  <_> )  | \/
- \___  >____  /____/\___  >____/|____(____  /__|  \____/|__|   
-     \/     \/          \/                \/                   
 # Arduino LCD Calculator
 
 A hardware-based arithmetic calculator built for Arduino using the **LCD Keypad Shield**.  
