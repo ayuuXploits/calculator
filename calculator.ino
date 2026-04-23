@@ -1,9 +1,8 @@
 #include <Keypad.h>
 
-const byte ROWS = 4; // Four rows
-const byte COLS = 4; // Four columns
+const byte ROWS = 4;
+const byte COLS = 4;
 
-// Define the keypad layout
 char keys[ROWS][COLS] = {
   {'/', 'c', '0', '='},
   {'*', '9', '8', '7'},
@@ -11,81 +10,79 @@ char keys[ROWS][COLS] = {
   {'+', '3', '2', '1'}
 };
 
-byte rowPins[ROWS] = {5, 4, 3, 2}; // Connect to the row pinouts of the keypad
-byte colPins[COLS] = {9, 8, 7, 6}; // Connect to the column pinouts of the keypad
+byte rowPins[ROWS] = {5, 4, 3, 2};
+byte colPins[COLS] = {9, 8, 7, 6};
 
-// Initialize the Keypad library
 Keypad customKeypad = Keypad(makeKeymap(keys), rowPins, colPins, ROWS, COLS);
 
-// Variables for the calculator logic
-long number1 = 0;
-long number2 = 0;
+// Changed to float for decimal support
+float number1 = 0;
+float number2 = 0;
 char operation = ' ';
-bool newNumber = true;
+bool newNumber = true; // True when entering first number, False for second
 
 void setup() {
   Serial.begin(9600);
-  Serial.println("Arduino Calculator Ready");
-  Serial.println("Enter first number:");
+  Serial.println("--- Arduino Calculator Ready ---");
+  Serial.println("Enter number:");
 }
 
 void loop() {
   char customKey = customKeypad.getKey();
 
   if (customKey) {
-    if (isDigit(customKey)) {
+    // 1. Check for digits
+    if (customKey >= '0' && customKey <= '9') {
       if (newNumber) {
-        // Start a new number entry
         number1 = (number1 * 10) + (customKey - '0');
         Serial.print(customKey);
       } else {
-        // Start entering the second number
         number2 = (number2 * 10) + (customKey - '0');
         Serial.print(customKey);
       }
-    } else if (customKey == 'C') {
-      // Clear function
+    } 
+    // 2. Check for Clear (Fixed case sensitivity from 'C' to 'c')
+    else if (customKey == 'c') {
       number1 = 0;
       number2 = 0;
       operation = ' ';
       newNumber = true;
-      Serial.println("\nCleared. Enter first number:");
-    } else if (customKey == '=') {
-      // Calculation
-      calculate();
-    } else if (customKey == '+' || customKey == '-' || customKey == '*' || customKey == '/') {
-      // Operation selection
+      Serial.println("\n--- Cleared ---");
+      Serial.println("Enter first number:");
+    } 
+    // 3. Check for Operation
+    else if (customKey == '+' || customKey == '-' || customKey == '*' || customKey == '/') {
       if (newNumber) {
         operation = customKey;
-        newNumber = false;
+        newNumber = false; // Switch to entering second number
         Serial.print(" ");
         Serial.print(operation);
         Serial.print(" ");
-        Serial.println("\nEnter second number:");
+      }
+    } 
+    // 4. Check for Equals
+    else if (customKey == '=') {
+      if (operation != ' ') {
+        calculate();
       }
     }
   }
 }
 
 void calculate() {
-  long result = 0;
+  float result = 0;
+  
   switch (operation) {
-    case '+':
-      result = number1 + number2;
-      break;
-    case '-':
-      result = number1 - number2;
-      break;
-    case '*':
-      result = number1 * number2;
-      break;
+    case '+': result = number1 + number2; break;
+    case '-': result = number1 - number2; break;
+    case '*': result = number1 * number2; break;
     case '/':
-      // Check for division by zero
       if (number2 != 0) {
         result = number1 / number2;
       } else {
-        Serial.println("\nError: Division by zero!");
-        return; // Exit the function to avoid displaying incorrect result
+        Serial.println("\nError: Div by 0");
+        number1 = 0; number2 = 0; operation = ' '; newNumber = true;
+        return;
       }
       break;
   }
@@ -93,10 +90,10 @@ void calculate() {
   Serial.print(" = ");
   Serial.println(result);
   
-  // Prepare for the next calculation
+  // Prepare for chained calculation
   number1 = result;
   number2 = 0;
   operation = ' ';
-  newNumber = true; // Wait for the next operation
-  Serial.println("\nResult stored. Enter new operation or 'C' to clear:");
+  newNumber = true;
+  Serial.println("Result saved. Enter next operation or 'c' to clear.");
 }
