@@ -32,12 +32,12 @@ A dual-mode Arduino firmware for the standard **LCD Keypad Shield** (16×2 displ
 
 ## Hardware
 
-| Component | Details |
-|---|---|
-| Arduino Board | Uno, Nano, or any ATmega328P board |
+| Component         | Details                                       |
+|-------------------|-----------------------------------------------|
+| Arduino Board     | Uno, Nano, or any ATmega328P board            |
 | LCD Keypad Shield | Standard 16×2 with ADC keypad (DFRobot-style) |
-| LCD Pins | RS=8, EN=9, D4=4, D5=5, D6=6, D7=7 |
-| Keypad Pin | Analog A0 |
+| LCD Pins          | RS=8, EN=9, D4=4, D5=5, D6=6, D7=7            |
+| Keypad Pin        | Analog A0                                     |
 
 No wiring needed — just stack the shield onto the Arduino.
 
