@@ -1,69 +1,169 @@
-Arduino LCD Calculator
-Arduino
-C++
-Hardware
-LCD Keypad Shield
-16×2 LCD
-A hardware-based arithmetic calculator built for Arduino using the LCD Keypad Shield. Numbers and operators are selected via the shield's onboard buttons, with all input and results displayed live on the integrated 16×2 LCD — no Serial Monitor required.
+# LCD Typing & Calculator — Arduino Shield Project
 
-Features
+A dual-mode Arduino firmware for the standard **LCD Keypad Shield** (16×2 display + 5-button ADC keypad). Switch between a full character-typing interface and an interactive calculator — all without any extra hardware.
 
-✓
-Addition, subtraction, multiplication, division
-✓
-Full output on 16×2 LCD display
-✓
-Button-driven input (Up/Down/Left/Right/Select)
-✓
-Division-by-zero error handling
-✓
-Chained calculations
-✓
-No external wiring — shield plug-and-play
-Hardware requirements
+---
 
-→ Arduino Uno (or compatible board)
-→ LCD Keypad Shield (DFRobot-compatible, 16×2 LCD + 5 buttons)
-→ Library: LiquidCrystal.h (built into Arduino IDE)
-Shield pin mapping
+## Features
 
-LCD pins
+### Typing Mode
+- Scroll through a character set of 66 symbols (space, A–Z, a–z, 0–9, `!?.`)
+- Type up to 32 characters across both LCD rows
+- Display auto-scrolls to keep the cursor in view
+- Send the composed message to the **Serial Monitor** (9600 baud)
+- **Auto-save to EEPROM** on send — message is restored after power-off
+- **Hold LEFT 1 second** → Clear all (with confirmation screen)
 
-RS → D8
-EN → D9
-D4–D7 → D4–D7
-Button input
+### Calculator Mode
+- Enter two floating-point numbers with full **decimal support**
+- Choose operator: `+` `-` `*` `/`
+- **Negative number entry** — toggle sign at any time while editing
+- **Division by zero protection** — displays `Error: Div/0` instead of crashing
+- Last result stored and printed to Serial for chaining operations
+- Result shown to **4 decimal places**
 
-Analog A0
-(resistor ladder)
-Button controls
+### System
+- **Hold SELECT 1 second** → Switch between Typing and Calculator mode
+- Debounced button reads (250 ms) for clean input
+- Boot screen with mode announcement on every switch
+- All results and sent messages logged to Serial Monitor
 
-UP
-Increment digit / cycle operator
-DOWN
-Decrement digit / cycle operator
-RIGHT
-Confirm entry / advance to next step
-SELECT
-Calculate result (=)
-LEFT
-Clear / reset
-Getting started
+---
 
-1
-Plug the LCD Keypad Shield onto your Arduino Uno
+## Hardware
 
-2
-Open calculator.ino in the Arduino IDE
+| Component | Details |
+|---|---|
+| Arduino Board | Uno, Nano, or any ATmega328P board |
+| LCD Keypad Shield | Standard 16×2 with ADC keypad (DFRobot-style) |
+| LCD Pins | RS=8, EN=9, D4=4, D5=5, D6=6, D7=7 |
+| Keypad Pin | Analog A0 |
 
-3
-Select your board and COM port, then upload
+No wiring needed — just stack the shield onto the Arduino.
 
-4
-Use the onboard buttons to enter numbers, select an operator, and press SELECT to calculate
+---
 
-LCD display layout
+## Button Controls
 
-42 + 58        
-= 100         
-Row 1: current expression  ·  Row 2: result
+### Typing Mode
+
+| Button | Action |
+|---|---|
+| UP | Next character in set |
+| DOWN | Previous character in set |
+| RIGHT | Confirm character, advance cursor |
+| LEFT (tap) | Backspace — delete last character |
+| LEFT (hold 1s) | **Clear all** |
+| SELECT (tap) | Send message to Serial + save to EEPROM |
+| SELECT (hold 1s) | Switch to Calculator mode |
+
+### Calculator Mode
+
+| Button | Action |
+|---|---|
+| UP | Increment current value / cycle to next operator |
+| DOWN | Decrement current value / cycle to previous operator |
+| RIGHT (first press) | Enter **decimal mode** for current number |
+| RIGHT (second press) | Confirm decimal, move to next slot |
+| LEFT (tap) | **Toggle negative sign** on current number |
+| SELECT (tap) | **Calculate** and display result |
+| SELECT (hold 1s) | Switch to Typing mode |
+
+#### Calculator Slots
+Pressing RIGHT cycles through three editing slots:
+
+```
+[ Num1 ]  →  [ Operator ]  →  [ Num2 ]  →  (loops back)
+```
+
+---
+
+## Installation
+
+1. Open **Arduino IDE** (1.8+ or 2.x).
+2. Paste or open `lcd_typing_calculator.ino`.
+3. Select your board under **Tools → Board**.
+4. Select the correct port under **Tools → Port**.
+5. Click **Upload**.
+6. Open **Serial Monitor** at `9600 baud` to see sent messages and calculation results.
+
+No external libraries required — uses only the built-in `LiquidCrystal.h` and `EEPROM.h`.
+
+---
+
+## EEPROM Usage
+
+The firmware uses EEPROM addresses `0–31` (32 bytes) to persist the last sent message. This survives power cycles and resets. If you want to clear the saved message manually, upload a sketch that writes `0xFF` to addresses 0–31, or simply send a new message.
+
+EEPROM write endurance on AVR chips is ~100,000 cycles. Since writes only happen on SELECT press, this is not a concern for normal use.
+
+---
+
+## Serial Output Examples
+
+```
+System ready.
+SENT: Hello World!
+CALC: 12.5 * 4.0 = 50.0000
+CALC ERROR: Division by zero
+Last result: 50.0000
+```
+
+---
+
+## Character Set
+
+```
+[space] A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
+a b c d e f g h i j k l m n o p q r s t u v w x y z
+0 1 2 3 4 5 6 7 8 9 ! ? .
+```
+66 characters total, cycling with UP/DOWN.
+
+---
+
+## Code Structure
+
+```
+lcd_typing_calculator.ino
+│
+├── setup()                  Boot screen, EEPROM load
+├── loop()                   Button scan, long-press detection
+│
+├── showCurrentMode()        Mode transition screen
+├── handleSelectClick()      Send message / calculate result
+│
+├── Typing
+│   ├── handleTypingUp/Down()    Scroll charset
+│   ├── handleTypingRight()      Confirm character
+│   ├── handleTypingLeft()       Backspace
+│   └── clearMessage()           Clear all (long press)
+│
+├── Calculator
+│   ├── handleCalcUp/Down()      Adjust value / operator
+│   ├── handleCalcRight()        Cycle slots / decimal mode
+│   ├── handleCalcLeft()         Toggle negative sign
+│   └── calculateResult()        Compute + display result
+│
+├── EEPROM
+│   ├── saveToEEPROM()
+│   └── loadFromEEPROM()
+│
+└── Display Helpers
+    ├── refreshTypingDisplay()   Scrolling text display
+    ├── updateCalcDisplay()      Calculator layout
+    ├── drawCurrentChar()        Cursor character preview
+    └── setCursorPos()           1D → 2D LCD position
+```
+
+---
+
+## Known Limitations
+
+- Calculator numbers are entered by incrementing/decrementing, so large numbers (e.g. 999) require many button presses. Consider holding UP/DOWN for faster scrolling in a future revision.
+- Typing is limited to 32 characters (two full LCD rows).
+- No multi-operation chaining in Calculator mode — clear and re-enter for sequential calculations.
+
+---
+
+
