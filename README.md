@@ -60,22 +60,7 @@ arduino-cli board list
 | LCD D4–D7    | D4–D7             |
 | Button input | A0 (resistor ladder) |
 
-## Button Controls
 
-| Button | Action                            |
-|--------|-----------------------------------|
-| UP     | Increment digit / cycle operator  |
-| DOWN   | Decrement digit / cycle operator  |
-| RIGHT  | Confirm entry / advance           |
-| SELECT | Calculate result (=)              |
-| LEFT   | Clear / reset                     |
-
-## LCD Display Layout
-
-```
-Row 1:  42 + 58
-Row 2:  = 100
-```
 
 ---
 
