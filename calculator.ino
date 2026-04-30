@@ -1,108 +1,194 @@
-#include <Keypad.h>
+#include <LiquidCrystal.h>
 
-// Keypad Configuration
-const byte ROWS = 4;
-const byte COLS = 4;
-char keys[ROWS][COLS] = {
-  {'/', 'c', '0', '='},
-  {'*', '9', '8', '7'},
-  {'-', '6', '5', '4'},
-  {'+', '3', '2', '1'}
-};
-byte rowPins[ROWS] = {5, 4, 3, 2};
-byte colPins[COLS] = {9, 8, 7, 6};
+// Pins for standard LCD Keypad Shield
+LiquidCrystal lcd(8, 9, 4, 5, 6, 7);
 
-Keypad customKeypad = Keypad(makeKeymap(keys), rowPins, colPins, ROWS, COLS);
+// --- State Management ---
+enum Mode { TYPING, CALCULATOR };
+Mode currentMode = TYPING;
+unsigned long lastPressTime = 0;
+const int debounceDelay = 250; 
 
-// State Machine Variables
-enum State { INPUT_VAL1, INPUT_VAL2 };
-State currentState = INPUT_VAL1;
+// --- Typing Variables ---
+char charset[] = " ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!?.";
+int charIndex = 0;
+int cursorPosition = 0;
+String message = "";
 
-float val1 = 0;
-float val2 = 0;
-char operation = 0;
+// --- Calculator Variables ---
+float num1 = 0, num2 = 0;
+char ops[] = {'+', '-', '*', '/'};
+int opIndex = 0;
+int calcSlot = 0; // 0:Num1, 1:Op, 2:Num2
 
 void setup() {
+  lcd.begin(16, 2);
   Serial.begin(9600);
-  Serial.println("--- Arduino Calculator Ready ---");
+  
+  lcd.print("System Booting...");
+  delay(1000);
+  showCurrentMode();
 }
 
 void loop() {
-  char key = customKeypad.getKey();
-  if (!key) return;
-
-  if (key == 'c') {
-    resetCalculator();
-    return;
-  }
-
-  if (key >= '0' && key <= '9') {
-    handleDigit(key - '0');
-  } 
-  else if (key == '+' || key == '-' || key == '*' || key == '/') {
-    handleOperator(key);
-  } 
-  else if (key == '=') {
-    performCalculation();
-  }
-}
-
-void handleDigit(int digit) {
-  if (currentState == INPUT_VAL1) {
-    val1 = (val1 * 10) + digit;
-    Serial.print(digit);
-  } else {
-    val2 = (val2 * 10) + digit;
-    Serial.print(digit);
-  }
-}
-
-void handleOperator(char op) {
-  // If we already have an operator, calculate the intermediate result first
-  if (currentState == INPUT_VAL2) {
-    performCalculation();
-  }
+  int x = analogRead(0);
   
-  operation = op;
-  currentState = INPUT_VAL2;
-  Serial.print(" ");
-  Serial.print(operation);
-  Serial.print(" ");
-}
-
-void performCalculation() {
-  if (currentState != INPUT_VAL2) return;
-
-  float result = 0;
-  switch (operation) {
-    case '+': result = val1 + val2; break;
-    case '-': result = val1 - val2; break;
-    case '*': result = val1 * val2; break;
-    case '/':
-      if (val2 != 0) result = val1 / val2;
-      else {
-        Serial.println("\nError: Div by 0");
-        resetCalculator();
+  // Check for Long Press on SELECT to switch modes
+  if (x > 600 && x < 850) {
+    unsigned long startHold = millis();
+    while (analogRead(0) > 600 && analogRead(0) < 850) {
+      if (millis() - startHold > 1000) { // 1 second hold
+        currentMode = (currentMode == TYPING) ? CALCULATOR : TYPING;
+        showCurrentMode();
+        while(analogRead(0) < 1000); // Wait for release
         return;
       }
-      break;
+    }
+    
+    // If it wasn't a long press, treat as a normal SELECT click
+    if (millis() - lastPressTime > debounceDelay) {
+      handleSelectClick();
+      lastPressTime = millis();
+    }
   }
 
-  Serial.print(" = ");
-  Serial.println(result);
-  
-  // Set up for next operation (Chainable)
-  val1 = result;
-  val2 = 0;
-  operation = 0;
-  currentState = INPUT_VAL1; 
-  Serial.println("Result stored. Enter next op or new number.");
+  // Handle other buttons
+  if (millis() - lastPressTime > debounceDelay) {
+    if (x < 60) { // RIGHT
+      if (currentMode == TYPING) handleTypingRight(); else handleCalcRight();
+      lastPressTime = millis();
+    } 
+    else if (x < 200) { // UP
+      if (currentMode == TYPING) handleTypingUp(); else handleCalcUp();
+      lastPressTime = millis();
+    } 
+    else if (x < 400) { // DOWN
+      if (currentMode == TYPING) handleTypingDown(); else handleCalcDown();
+      lastPressTime = millis();
+    } 
+    else if (x < 600) { // LEFT
+      if (currentMode == TYPING) handleTypingLeft();
+      lastPressTime = millis();
+    }
+  }
 }
 
-void resetCalculator() {
-  val1 = 0;
-  val2 = 0;
-  operation = 0;
-  currentState = INPUT_VAL1;
-  Serial.println("\n--- Cleared ---");
+// --- Mode Switching Logic ---
+void showCurrentMode() {
+  lcd.clear();
+  if (currentMode == TYPING) {
+    lcd.print("MODE: TYPING");
+    delay(800);
+    refreshTypingDisplay();
+  } else {
+    lcd.print("MODE: CALC");
+    delay(800);
+    updateCalcDisplay();
+  }
+}
+
+void handleSelectClick() {
+  if (currentMode == TYPING) {
+    // Send full message to Serial Monitor
+    String finalMsg = message + charset[charIndex];
+    Serial.println("SENT MESSAGE: " + finalMsg);
+    
+    lcd.clear();
+    lcd.print("Sent to Serial!");
+    delay(1000);
+    refreshTypingDisplay();
+  } else {
+    // Calculate result in Calc Mode
+    calculateResult();
+  }
+}
+
+// --- Typing Functions ---
+void handleTypingUp() {
+  charIndex = (charIndex + 1) % (sizeof(charset) - 1);
+  drawCurrentChar();
+}
+
+void handleTypingDown() {
+  charIndex = (charIndex - 1 + (sizeof(charset) - 1)) % (sizeof(charset) - 1);
+  drawCurrentChar();
+}
+
+void handleTypingRight() {
+  if (cursorPosition < 31) {
+    message += charset[charIndex];
+    cursorPosition++;
+    charIndex = 0; // Reset to space
+    refreshTypingDisplay();
+  }
+}
+
+void handleTypingLeft() {
+  if (cursorPosition > 0) {
+    cursorPosition--;
+    if (message.length() > 0) message.remove(message.length() - 1);
+    refreshTypingDisplay();
+  }
+}
+
+// --- Calculator Functions ---
+void handleCalcUp() {
+  if (calcSlot == 0) num1++; 
+  else if (calcSlot == 1) opIndex = (opIndex + 1) % 4; 
+  else num2++;
+  updateCalcDisplay();
+}
+
+void handleCalcDown() {
+  if (calcSlot == 0) num1--; 
+  else if (calcSlot == 1) opIndex = (opIndex - 1 + 4) % 4; 
+  else num2--;
+  updateCalcDisplay();
+}
+
+void handleCalcRight() {
+  calcSlot = (calcSlot + 1) % 3;
+  updateCalcDisplay();
+}
+
+void calculateResult() {
+  float res = 0;
+  if (ops[opIndex] == '+') res = num1 + num2;
+  else if (ops[opIndex] == '-') res = num1 - num2;
+  else if (ops[opIndex] == '*') res = num1 * num2;
+  else if (ops[opIndex] == '/') res = (num2 != 0) ? num1 / num2 : 0;
+  
+  lcd.setCursor(0, 1);
+  lcd.print("= "); lcd.print(res);
+  lcd.print("            "); 
+}
+
+// --- Display Helpers ---
+void drawCurrentChar() {
+  setCursorPos(cursorPosition);
+  lcd.print(charset[charIndex]);
+  setCursorPos(cursorPosition);
+}
+
+void setCursorPos(int pos) {
+  if (pos < 16) lcd.setCursor(pos, 0); 
+  else lcd.setCursor(pos - 16, 1);
+}
+
+void refreshTypingDisplay() {
+  lcd.clear();
+  lcd.setCursor(0,0); lcd.print(message.substring(0, 16));
+  lcd.setCursor(0,1); lcd.print(message.substring(16));
+  drawCurrentChar();
+  lcd.cursor();
+}
+
+void updateCalcDisplay() {
+  lcd.noCursor();
+  lcd.clear();
+  lcd.print((int)num1); lcd.print(" "); lcd.print(ops[opIndex]); lcd.print(" "); lcd.print((int)num2);
+  lcd.setCursor(0, 1);
+  if (calcSlot == 0) lcd.print("[Editing Num1]");
+  else if (calcSlot == 1) lcd.print("[Editing Op]");
+  else if (calcSlot == 2) lcd.print("[Editing Num2]");
 }
