@@ -59,15 +59,15 @@ No wiring needed — just stack the shield onto the Arduino.
 
 ### Calculator Mode
 
-| Button | Action |
-|---|---|
-| UP | Increment current value / cycle to next operator |
-| DOWN | Decrement current value / cycle to previous operator |
-| RIGHT (first press) | Enter **decimal mode** for current number |
-| RIGHT (second press) | Confirm decimal, move to next slot |
-| LEFT (tap) | **Toggle negative sign** on current number |
-| SELECT (tap) | **Calculate** and display result |
-| SELECT (hold 1s) | Switch to Typing mode |
+| Button               | Action                                               |
+|----------------------|------------------------------------------------------|
+| UP                   | Increment current value / cycle to next operator     |
+| DOWN                 | Decrement current value / cycle to previous operator |
+| RIGHT (first press)  | Enter **decimal mode** for current number            |
+| RIGHT (second press) | Confirm decimal, move to next slot                   |
+| LEFT (tap)           | **Toggle negative sign** on current number           |
+| SELECT (tap)         | **Calculate** and display result                     |
+| SELECT (hold 1s)     | Switch to Typing mode                                |
 
 #### Calculator Slots
 Pressing RIGHT cycles through three editing slots:
