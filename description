@@ -48,14 +48,14 @@ A three-in-one Arduino firmware for the standard **LCD Keypad Shield** (16×2 di
 ---
 
 ## Hardware
-
+---------------------------------------------------------------------
 | Component         | Details                                       |
 |-------------------|-----------------------------------------------|
 | Arduino Board     | Uno, Nano, or any ATmega328P board            |
 | LCD Keypad Shield | Standard 16×2 with ADC keypad (DFRobot-style) |
 | LCD Pins          | RS=8, EN=9, D4=4, D5=5, D6=6, D7=7            |
 | Keypad Pin        | Analog A0                                     |
-
+---------------------------------------------------------------------
 No wiring needed — just stack the shield onto the Arduino.
 
 ---
@@ -63,7 +63,7 @@ No wiring needed — just stack the shield onto the Arduino.
 ## Button Controls
 
 ### Typing Mode
-
+------------------------------------------------------------
 | Button         | Action                                  |
 |----------------|-----------------------------------------|
 | UP             | Next character in set                   |
@@ -73,19 +73,19 @@ No wiring needed — just stack the shield onto the Arduino.
 | LEFT (hold 1s) | **Clear all**                           |
 | SELECT (tap)   | Send message to Serial + save to EEPROM |
 | SELECT(hold 1s)| Cycle to next mode                      |
-
+------------------------------------------------------------
 ### Calculator Mode
-
-| Button | Action |
-|---|---|
-| UP | Increment current value / cycle to next operator |
-| DOWN | Decrement current value / cycle to previous operator |
-| RIGHT (first press) | Enter **decimal mode** for current number |
-| RIGHT (second press) | Confirm decimal, move to next slot |
-| LEFT (tap) | **Toggle negative sign** on current number |
-| SELECT (tap) | **Calculate** and display result |
-| SELECT (hold 1s) | Cycle to next mode |
-
+-------------------------------------------------------------------------------
+| Button               | Action                                               |
+|----------------------|------------------------------------------------------|
+| UP                   | Increment current value / cycle to next operator     |
+| DOWN                 | Decrement current value / cycle to previous operator |
+| RIGHT (first press)  | Enter **decimal mode** for current number            |
+| RIGHT (second press) | Confirm decimal, move to next slot                   |
+| LEFT (tap)           | **Toggle negative sign** on current number           |
+| SELECT (tap)         | **Calculate** and display result                     |
+| SELECT (hold 1s)     | Cycle to next mode                                   |
+-------------------------------------------------------------------------------
 #### Calculator Slots
 Pressing RIGHT cycles through three editing slots:
 
