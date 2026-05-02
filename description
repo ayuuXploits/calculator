@@ -210,7 +210,3 @@ lcd_multitool.ino
 - Converter input range is limited by float precision on AVR (~6–7 significant digits).
 
 ---
-
-## License
-
-MIT — free to use, modify, and distribute.
