@@ -28,14 +28,14 @@ A three-in-one Arduino firmware for the standard **LCD Keypad Shield** (16×2 di
 - Result displayed for 3 seconds then returns to input
 - All conversions logged to Serial Monitor
 
-| Conversion | Category |
-|---|---|
-| km ↔ miles | Distance |
-| °C ↔ °F | Temperature |
-| kg ↔ lbs | Weight |
-| m ↔ ft | Length |
-| L ↔ gal | Volume |
-| cm ↔ in | Length |
+| Conversion | Category    |
+|------------|-------------|
+| km ↔ miles | Distance    |
+| °C ↔ °F    | Temperature |
+| kg ↔ lbs   | Weight      |
+| m ↔ ft     | Length      |
+| L ↔ gal    | Volume      |
+| cm ↔ in    | Length      |
 
 > Temperature uses the proper formula — not a multiply factor.
 
