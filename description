@@ -1,6 +1,6 @@
-# LCD Typing & Calculator — Arduino Shield Project
+# LCD Multi-Tool — Arduino Shield Project
 
-A dual-mode Arduino firmware for the standard **LCD Keypad Shield** (16×2 display + 5-button ADC keypad). Switch between a full character-typing interface and an interactive calculator — all without any extra hardware.
+A three-in-one Arduino firmware for the standard **LCD Keypad Shield** (16×2 display + 5-button ADC keypad). Switch between a full character-typing interface, an interactive calculator, and a unit converter — all without any extra hardware.
 
 ---
 
@@ -22,8 +22,25 @@ A dual-mode Arduino firmware for the standard **LCD Keypad Shield** (16×2 displ
 - Last result stored and printed to Serial for chaining operations
 - Result shown to **4 decimal places**
 
+### Unit Converter Mode
+- 12 conversion types across 5 categories
+- Full **decimal and negative** value entry
+- Result displayed for 3 seconds then returns to input
+- All conversions logged to Serial Monitor
+
+| Conversion | Category |
+|---|---|
+| km ↔ miles | Distance |
+| °C ↔ °F | Temperature |
+| kg ↔ lbs | Weight |
+| m ↔ ft | Length |
+| L ↔ gal | Volume |
+| cm ↔ in | Length |
+
+> Temperature uses the proper formula — not a multiply factor.
+
 ### System
-- **Hold SELECT 1 second** → Switch between Typing and Calculator mode
+- **Hold SELECT 1 second** → Cycle modes: Typing → Calculator → Converter → Typing
 - Debounced button reads (250 ms) for clean input
 - Boot screen with mode announcement on every switch
 - All results and sent messages logged to Serial Monitor
@@ -32,12 +49,12 @@ A dual-mode Arduino firmware for the standard **LCD Keypad Shield** (16×2 displ
 
 ## Hardware
 
-| Component         | Details                                       |
-|-------------------|-----------------------------------------------|
-| Arduino Board     | Uno, Nano, or any ATmega328P board            |
+| Component | Details |
+|---|---|
+| Arduino Board | Uno, Nano, or any ATmega328P board |
 | LCD Keypad Shield | Standard 16×2 with ADC keypad (DFRobot-style) |
-| LCD Pins          | RS=8, EN=9, D4=4, D5=5, D6=6, D7=7            |
-| Keypad Pin        | Analog A0                                     |
+| LCD Pins | RS=8, EN=9, D4=4, D5=5, D6=6, D7=7 |
+| Keypad Pin | Analog A0 |
 
 No wiring needed — just stack the shield onto the Arduino.
 
@@ -47,27 +64,27 @@ No wiring needed — just stack the shield onto the Arduino.
 
 ### Typing Mode
 
-| Button            | Action                                  |
-|-------------------|-----------------------------------------|
-| UP                | Next character in set                   |
-| DOWN              | Previous character in set               |
-| RIGHT             | Confirm character, advance cursor       |
-| LEFT (tap)        | Backspace — delete last character       |
-| LEFT (hold 1s)    | **Clear all**                           |
-| SELECT (tap)      | Send message to Serial + save to EEPROM |
-| SELECT (hold 1s)  | Switch to Calculator mode               |
+| Button | Action |
+|---|---|
+| UP | Next character in set |
+| DOWN | Previous character in set |
+| RIGHT | Confirm character, advance cursor |
+| LEFT (tap) | Backspace — delete last character |
+| LEFT (hold 1s) | **Clear all** |
+| SELECT (tap) | Send message to Serial + save to EEPROM |
+| SELECT (hold 1s) | Cycle to next mode |
 
 ### Calculator Mode
 
-| Button               | Action                                               |
-|----------------------|------------------------------------------------------|
-| UP                   | Increment current value / cycle to next operator     |
-| DOWN                 | Decrement current value / cycle to previous operator |
-| RIGHT (first press)  | Enter **decimal mode** for current number            |
-| RIGHT (second press) | Confirm decimal, move to next slot                   |
-| LEFT (tap)           | **Toggle negative sign** on current number           |
-| SELECT (tap)         | **Calculate** and display result                     |
-| SELECT (hold 1s)     | Switch to Typing mode                                |
+| Button | Action |
+|---|---|
+| UP | Increment current value / cycle to next operator |
+| DOWN | Decrement current value / cycle to previous operator |
+| RIGHT (first press) | Enter **decimal mode** for current number |
+| RIGHT (second press) | Confirm decimal, move to next slot |
+| LEFT (tap) | **Toggle negative sign** on current number |
+| SELECT (tap) | **Calculate** and display result |
+| SELECT (hold 1s) | Cycle to next mode |
 
 #### Calculator Slots
 Pressing RIGHT cycles through three editing slots:
@@ -76,16 +93,33 @@ Pressing RIGHT cycles through three editing slots:
 [ Num1 ]  →  [ Operator ]  →  [ Num2 ]  →  (loops back)
 ```
 
+### Unit Converter Mode
+
+| Button | Action |
+|---|---|
+| UP | Next conversion type / increment value |
+| DOWN | Previous conversion type / decrement value |
+| RIGHT (tap) | Confirm type → enter value / toggle decimal mode |
+| LEFT (tap) | **Toggle negative sign** on input value |
+| LEFT (hold 1s) | **Reset converter** |
+| SELECT (tap) | **Convert** and display result for 3 seconds |
+| SELECT (hold 1s) | Cycle to next mode |
+
+#### Converter Slots
+```
+[ Select Type ]  →  [ Enter Value ]  →  SELECT to convert
+```
+
 ---
 
 ## Installation
 
 1. Open **Arduino IDE** (1.8+ or 2.x).
-2. Paste or open `lcd_typing_calculator.ino`.
+2. Paste or open `lcd_multitool.ino`.
 3. Select your board under **Tools → Board**.
 4. Select the correct port under **Tools → Port**.
 5. Click **Upload**.
-6. Open **Serial Monitor** at `9600 baud` to see sent messages and calculation results.
+6. Open **Serial Monitor** at `9600 baud` to see sent messages and results.
 
 No external libraries required — uses only the built-in `LiquidCrystal.h` and `EEPROM.h`.
 
@@ -93,7 +127,7 @@ No external libraries required — uses only the built-in `LiquidCrystal.h` and 
 
 ## EEPROM Usage
 
-The firmware uses EEPROM addresses `0–31` (32 bytes) to persist the last sent message. This survives power cycles and resets. If you want to clear the saved message manually, upload a sketch that writes `0xFF` to addresses 0–31, or simply send a new message.
+The firmware uses EEPROM addresses `0–31` (32 bytes) to persist the last sent message. This survives power cycles and resets. To clear manually, upload a sketch that writes `0xFF` to addresses 0–31, or simply send a new message.
 
 EEPROM write endurance on AVR chips is ~100,000 cycles. Since writes only happen on SELECT press, this is not a concern for normal use.
 
@@ -107,6 +141,8 @@ SENT: Hello World!
 CALC: 12.5 * 4.0 = 50.0000
 CALC ERROR: Division by zero
 Last result: 50.0000
+CONV: 100.0000 km = 62.1371 mi
+CONV: 100.0000 C = 212.0000 F
 ```
 
 ---
@@ -125,13 +161,13 @@ a b c d e f g h i j k l m n o p q r s t u v w x y z
 ## Code Structure
 
 ```
-lcd_typing_calculator.ino
+lcd_multitool.ino
 │
 ├── setup()                  Boot screen, EEPROM load
 ├── loop()                   Button scan, long-press detection
 │
 ├── showCurrentMode()        Mode transition screen
-├── handleSelectClick()      Send message / calculate result
+├── handleSelectClick()      Send / calculate / convert
 │
 ├── Typing
 │   ├── handleTypingUp/Down()    Scroll charset
@@ -144,6 +180,14 @@ lcd_typing_calculator.ino
 │   ├── handleCalcRight()        Cycle slots / decimal mode
 │   ├── handleCalcLeft()         Toggle negative sign
 │   └── calculateResult()        Compute + display result
+│
+├── Converter
+│   ├── handleConvUp/Down()      Browse types / adjust value
+│   ├── handleConvRight()        Confirm type / decimal mode
+│   ├── handleConvLeft()         Toggle negative sign
+│   ├── doConversion()           Compute + display result
+│   ├── resetConverter()         Clear (long press)
+│   └── updateConverterDisplay() Render type browser + value entry
 │
 ├── EEPROM
 │   ├── saveToEEPROM()
@@ -160,10 +204,13 @@ lcd_typing_calculator.ino
 
 ## Known Limitations
 
-- Calculator numbers are entered by incrementing/decrementing, so large numbers (e.g. 999) require many button presses. Consider holding UP/DOWN for faster scrolling in a future revision.
+- Calculator and converter values are entered by incrementing/decrementing, so large numbers require many button presses. A future revision could add hold-to-repeat for faster input.
 - Typing is limited to 32 characters (two full LCD rows).
 - No multi-operation chaining in Calculator mode — clear and re-enter for sequential calculations.
+- Converter input range is limited by float precision on AVR (~6–7 significant digits).
 
 ---
 
+## License
 
+MIT — free to use, modify, and distribute.
