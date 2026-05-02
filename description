@@ -3,7 +3,7 @@
 A three-in-one Arduino firmware for the standard **LCD Keypad Shield** (16×2 display + 5-button ADC keypad). Switch between a full character-typing interface, an interactive calculator, and a unit converter — all without any extra hardware.
 
 ---
-
+ 
 ## Features
 
 ### Typing Mode
