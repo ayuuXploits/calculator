@@ -64,15 +64,15 @@ No wiring needed — just stack the shield onto the Arduino.
 
 ### Typing Mode
 
-| Button | Action |
-|---|---|
-| UP | Next character in set |
-| DOWN | Previous character in set |
-| RIGHT | Confirm character, advance cursor |
-| LEFT (tap) | Backspace — delete last character |
-| LEFT (hold 1s) | **Clear all** |
-| SELECT (tap) | Send message to Serial + save to EEPROM |
-| SELECT (hold 1s) | Cycle to next mode |
+| Button         | Action                                  |
+|----------------|-----------------------------------------|
+| UP             | Next character in set                   |
+| DOWN           | Previous character in set               |
+| RIGHT          | Confirm character, advance cursor       |
+| LEFT (tap)     | Backspace — delete last character       |
+| LEFT (hold 1s) | **Clear all**                           |
+| SELECT (tap)   | Send message to Serial + save to EEPROM |
+| SELECT(hold 1s)| Cycle to next mode                      |
 
 ### Calculator Mode
 
