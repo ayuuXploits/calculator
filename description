@@ -95,15 +95,15 @@ Pressing RIGHT cycles through three editing slots:
 
 ### Unit Converter Mode
 
-| Button | Action |
-|---|---|
-| UP | Next conversion type / increment value |
-| DOWN | Previous conversion type / decrement value |
-| RIGHT (tap) | Confirm type → enter value / toggle decimal mode |
-| LEFT (tap) | **Toggle negative sign** on input value |
-| LEFT (hold 1s) | **Reset converter** |
-| SELECT (tap) | **Convert** and display result for 3 seconds |
-| SELECT (hold 1s) | Cycle to next mode |
+| Button           | Action                                           |
+|------------------|--------------------------------------------------|
+| UP               | Next conversion type / increment value           |
+| DOWN             | Previous conversion type / decrement value       |
+| RIGHT (tap)      | Confirm type → enter value / toggle decimal mode |
+| LEFT (tap)       | **Toggle negative sign** on input value          |
+| LEFT (hold 1s)   | **Reset converter**                              |
+| SELECT (tap)     | **Convert** and display result for 3 seconds     |
+| SELECT (hold 1s) | Cycle to next mode                               |
 
 #### Converter Slots
 ```
